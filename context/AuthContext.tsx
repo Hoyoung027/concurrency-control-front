@@ -5,12 +5,11 @@ import { createContext, useContext, useEffect, useState } from 'react';
 interface AuthState {
   nickname: string | null;
   character: string | null;
-  accessToken: string | null;
 }
 
 interface AuthContextValue extends AuthState {
   isAuthenticated: boolean;
-  login: (nickname: string, character: string, accessToken: string, refreshToken: string) => void;
+  login: (nickname: string, character: string) => void;
   logout: () => void;
 }
 
@@ -20,42 +19,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [auth, setAuth] = useState<AuthState>({
     nickname: null,
     character: null,
-    accessToken: null,
   });
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
     const nickname = localStorage.getItem('nickname');
     const character = localStorage.getItem('character');
-    if (accessToken && nickname && character) {
-      setAuth({ accessToken, nickname, character });
+    if (nickname && character) {
+      setAuth({ nickname, character });
     }
   }, []);
 
-  const login = (
-    nickname: string,
-    character: string,
-    accessToken: string,
-    refreshToken: string
-  ) => {
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+  const login = (nickname: string, character: string) => {
     localStorage.setItem('nickname', nickname);
     localStorage.setItem('character', character);
-    setAuth({ nickname, character, accessToken });
+    setAuth({ nickname, character });
   };
 
   const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
     localStorage.removeItem('nickname');
     localStorage.removeItem('character');
-    setAuth({ nickname: null, character: null, accessToken: null });
+    setAuth({ nickname: null, character: null });
   };
 
   return (
     <AuthContext.Provider
-      value={{ ...auth, isAuthenticated: !!auth.accessToken, login, logout }}
+      value={{ ...auth, isAuthenticated: !!auth.nickname, login, logout }}
     >
       {children}
     </AuthContext.Provider>

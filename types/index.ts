@@ -47,8 +47,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponseData {
-  accessToken: string;
-  refreshToken: string;
+  nickname: string;
   character: string;
 }
 

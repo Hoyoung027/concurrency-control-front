@@ -26,7 +26,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const data = await loginApi({ nickname, password });
-      login(nickname, data.character, data.accessToken, data.refreshToken);
+      login(data.nickname, data.character);
       // login() 이 호출되면 isAuthenticated가 true가 되고
       // 위 useEffect가 router.replace('/') 를 처리함
     } catch (err) {
