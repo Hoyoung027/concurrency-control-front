@@ -8,6 +8,7 @@ import UserAvatar from '@/components/UserAvatar';
 import ItemCard from '@/components/ItemCard';
 import StressTestControls from '@/components/StressTestControls';
 import PurchaseLog from '@/components/PurchaseLog';
+import PurchaseAttemptsChart from '@/components/PurchaseAttemptsChart';
 import type { Item, LogEntry } from '@/types';
 import axios from 'axios';
 
@@ -156,6 +157,8 @@ export default function StorePage() {
                 재고 새로고침
               </button>
             </div>
+
+            <PurchaseAttemptsChart data={item.purchaseAttemptsByMember} />
 
             <PurchaseLog logs={logs} onClear={() => setLogs([])} />
           </>
