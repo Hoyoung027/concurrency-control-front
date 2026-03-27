@@ -37,8 +37,8 @@ export default function RegisterPage() {
       // 이모지를 localStorage에 저장해두고 로그인 시 복원
       localStorage.setItem('character', signupData.character);
 
-      const loginData = await loginApi({ nickname, password });
-      login(nickname, signupData.character, loginData.accessToken, loginData.refreshToken);
+      await loginApi({ nickname, password });
+      login(nickname, signupData.character);
       // login() 호출 후 isAuthenticated가 true가 되면 useEffect가 redirect 처리
     } catch (err) {
       if (axios.isAxiosError(err)) {
