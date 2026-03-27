@@ -55,14 +55,19 @@ export interface Item {
   id: number;
   name: string;
   price: number;
-  quantity: number;
+  stock: number;
+}
+
+export interface StatResponse {
   purchaseAttempts: number;
   purchaseAttemptsByMember: Record<string, number>;
 }
 
 export interface PurchaseResponseData {
-  name: string;
-  remainingQuantity: number;
+  itemName: string;
+  remainingStock: number;
+  memberUuid: string;
+  memberNickname: string;
 }
 
 export interface LogEntry {
@@ -71,5 +76,5 @@ export interface LogEntry {
   timestamp: string;
   status: 'pending' | 'success' | 'failure';
   message: string;
-  remainingQuantity?: number;
+  remainingStock?: number;
 }

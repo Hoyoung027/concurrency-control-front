@@ -10,9 +10,9 @@ interface Props {
 
 export default function ItemCard({ item, onBuy, buying }: Props) {
   const stockColor =
-    item.quantity === 0
+    item.stock === 0
       ? 'text-red-600 bg-red-50'
-      : item.quantity <= 10
+      : item.stock <= 10
       ? 'text-orange-600 bg-orange-50'
       : 'text-green-700 bg-green-50';
 
@@ -26,20 +26,16 @@ export default function ItemCard({ item, onBuy, buying }: Props) {
           </p>
         </div>
         <div className={`px-4 py-2 rounded-xl font-bold text-lg ${stockColor}`}>
-          재고 {item.quantity}개
+          재고 {item.stock}개
         </div>
-      </div>
-
-      <div className="text-sm text-blue-400">
-        총 구매 시도: <span className="font-semibold text-blue-700">{item.purchaseAttempts}회</span>
       </div>
 
       <button
         onClick={onBuy}
-        disabled={buying || item.quantity === 0}
+        disabled={buying || item.stock === 0}
         className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-200 text-white font-semibold py-3 rounded-xl transition-colors text-base shadow-sm shadow-blue-200"
       >
-        {buying ? '구매 중...' : item.quantity === 0 ? '품절' : '구매하기'}
+        {buying ? '구매 중...' : item.stock === 0 ? '품절' : '구매하기'}
       </button>
     </div>
   );

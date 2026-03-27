@@ -38,9 +38,9 @@ export default function PurchaseLog({ logs, onClear }: Props) {
                 {log.status === 'pending' ? '대기' : log.status === 'success' ? '성공' : '실패'}
               </span>
               <span className="truncate">{log.message}</span>
-              {log.remainingQuantity !== undefined && (
+              {log.remainingStock !== undefined && (
                 <span className="ml-auto shrink-0 font-bold">
-                  남은재고: {log.remainingQuantity}
+                  남은재고: {log.remainingStock}
                 </span>
               )}
             </div>

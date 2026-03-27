@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { getItem, purchaseItem } from '@/lib/itemApi';
+import { getItem, getStats, purchaseItem } from '@/lib/itemApi';
 import UserAvatar from '@/components/UserAvatar';
 import ItemCard from '@/components/ItemCard';
 import StressTestControls from '@/components/StressTestControls';
 import PurchaseLog from '@/components/PurchaseLog';
 import PurchaseAttemptsChart from '@/components/PurchaseAttemptsChart';
-import type { Item, LogEntry } from '@/types';
+import type { Item, StatResponse, LogEntry } from '@/types';
 import axios from 'axios';
 
 let logIdCounter = 0;
@@ -28,6 +28,7 @@ export default function StorePage() {
   const { isAuthenticated } = useAuth();
 
   const [item, setItem] = useState<Item | null>(null);
+  const [stats, setStats] = useState<StatResponse | null>(null);
   const [loadingItem, setLoadingItem] = useState(true);
   const [buying, setBuying] = useState(false);
   const [stressTesting, setStressTesting] = useState(false);
@@ -40,14 +41,15 @@ export default function StorePage() {
   }, [isAuthenticated, router]);
 
   useEffect(() => {
-    if (isAuthenticated) fetchItem();
+    if (isAuthenticated) fetchAll();
   }, [isAuthenticated]);
 
-  const fetchItem = async () => {
+  const fetchAll = async () => {
     setLoadingItem(true);
     try {
-      const data = await getItem();
-      setItem(data);
+      const [itemData, statsData] = await Promise.all([getItem(), getStats()]);
+      setItem(itemData);
+      setStats(statsData);
     } finally {
       setLoadingItem(false);
     }
@@ -77,9 +79,9 @@ export default function StorePage() {
       updateLog(id, {
         status: 'success',
         message: '구매 성공',
-        remainingQuantity: data.remainingQuantity,
+        remainingStock: data.remainingStock,
       });
-      await fetchItem();
+      await fetchAll();
     } catch (err) {
       const msg = axios.isAxiosError(err)
         ? err.response?.data?.message ?? '구매 실패'
@@ -110,7 +112,7 @@ export default function StorePage() {
           updateLog(id, {
             status: 'success',
             message: '구매 성공',
-            remainingQuantity: data.remainingQuantity,
+            remainingStock: data.remainingStock,
           });
         })
         .catch((err) => {
@@ -122,7 +124,7 @@ export default function StorePage() {
     );
 
     await Promise.allSettled(requests);
-    await fetchItem();
+    await fetchAll();
     setStressTesting(false);
   };
 
@@ -151,14 +153,21 @@ export default function StorePage() {
 
             <div className="flex justify-end">
               <button
-                onClick={fetchItem}
+                onClick={fetchAll}
                 className="text-sm text-blue-500 hover:text-blue-700 transition-colors"
               >
                 재고 새로고침
               </button>
             </div>
 
-            <PurchaseAttemptsChart data={item.purchaseAttemptsByMember} />
+            {stats && (
+              <>
+                <div className="text-sm text-blue-400">
+                  총 구매 시도: <span className="font-semibold text-blue-700">{stats.purchaseAttempts}회</span>
+                </div>
+                <PurchaseAttemptsChart data={stats.purchaseAttemptsByMember} />
+              </>
+            )}
 
             <PurchaseLog logs={logs} onClear={() => setLogs([])} />
           </>
