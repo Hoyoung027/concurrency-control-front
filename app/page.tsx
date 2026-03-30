@@ -6,7 +6,6 @@ import { useAuth } from '@/context/AuthContext';
 import { getItem, getStats, purchaseItem } from '@/lib/itemApi';
 import UserAvatar from '@/components/UserAvatar';
 import ItemCard from '@/components/ItemCard';
-import StressTestControls from '@/components/StressTestControls';
 import PurchaseLog from '@/components/PurchaseLog';
 import PurchaseAttemptsChart from '@/components/PurchaseAttemptsChart';
 import type { Item, StatResponse, LogEntry } from '@/types';
@@ -31,7 +30,6 @@ export default function StorePage() {
   const [stats, setStats] = useState<StatResponse | null>(null);
   const [loadingItem, setLoadingItem] = useState(true);
   const [buying, setBuying] = useState(false);
-  const [stressTesting, setStressTesting] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
 
   useEffect(() => {
@@ -92,42 +90,6 @@ export default function StorePage() {
     }
   };
 
-  const handleStressTest = async (count: number) => {
-    setStressTesting(true);
-
-    const ids: number[] = [];
-    for (let i = 0; i < count; i++) {
-      const id = addLog({
-        requestNumber: logIdCounter + 1,
-        timestamp: timestamp(),
-        status: 'pending',
-        message: '요청 대기 중...',
-      });
-      ids.push(id);
-    }
-
-    const requests = ids.map((id) =>
-      purchaseItem()
-        .then((data) => {
-          updateLog(id, {
-            status: 'success',
-            message: '구매 성공',
-            remainingStock: data.remainingStock,
-          });
-        })
-        .catch((err) => {
-          const msg = axios.isAxiosError(err)
-            ? err.response?.data?.message ?? '구매 실패'
-            : '구매 실패';
-          updateLog(id, { status: 'failure', message: msg });
-        })
-    );
-
-    await Promise.allSettled(requests);
-    await fetchAll();
-    setStressTesting(false);
-  };
-
   if (!isAuthenticated) return null;
 
   return (
@@ -145,11 +107,6 @@ export default function StorePage() {
         ) : item ? (
           <>
             <ItemCard item={item} onBuy={handleBuy} buying={buying} />
-
-            <StressTestControls
-              onStressTest={handleStressTest}
-              loading={stressTesting || buying}
-            />
 
             <div className="flex justify-end">
               <button
